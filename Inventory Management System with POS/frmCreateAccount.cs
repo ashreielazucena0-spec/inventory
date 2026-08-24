@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Inventory_Management_System_with_POS
 {
-    public partial class frmCreateAccount : Form {
+    public partial class  frmCreateAccount : Form {
 
         private readonly MySQL_Database _db;
 

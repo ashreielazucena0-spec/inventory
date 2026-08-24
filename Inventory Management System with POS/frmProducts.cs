@@ -19,7 +19,7 @@ namespace Inventory_Management_System_with_POS
 
         private void label1_Click(object sender, EventArgs e)
         {
-
+ 
         }
     }
 }

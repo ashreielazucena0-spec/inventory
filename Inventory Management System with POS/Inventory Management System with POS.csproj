@@ -91,6 +91,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="frmAccounts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="frmAccounts.Designer.cs">
+      <DependentUpon>frmAccounts.cs</DependentUpon>
+    </Compile>
     <Compile Include="frmCreateAccount.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,6 +124,9 @@
     <Compile Include="MySQL_Database.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="frmAccounts.resx">
+      <DependentUpon>frmAccounts.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="frmCreateAccount.resx">
       <DependentUpon>frmCreateAccount.cs</DependentUpon>
     </EmbeddedResource>
@@ -186,6 +195,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\cross.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\exit button1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\button.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

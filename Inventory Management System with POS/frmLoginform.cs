@@ -35,7 +35,7 @@ namespace Inventory_Management_System_with_POS
                     _db.conn.Open();
                 }
 
-                string sql = @"SELECT * FROM accounts WHERE username = @username AND password_hash = @password";
+                string sql = @"SELECT * FROM tbl_account WHERE user_name = @username AND pass_word = @password";
                 using (MySqlCommand cmd = new MySqlCommand(sql, _db.conn))
                 {
                     cmd.Parameters.AddWithValue("@username", txtUsername.Text);
@@ -66,8 +66,8 @@ namespace Inventory_Management_System_with_POS
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            frmLoginform loginform = new frmLoginform();
-            loginform.ShowDialog();
+            frmCreateAccount frmCreateAccount = new frmCreateAccount();
+            frmCreateAccount.ShowDialog();
             this.Hide();
         }
 

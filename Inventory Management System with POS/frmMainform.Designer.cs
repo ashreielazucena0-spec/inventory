@@ -156,14 +156,14 @@
             // manageToolStripMenuItem
             // 
             this.manageToolStripMenuItem.Name = "manageToolStripMenuItem";
-            this.manageToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manageToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.manageToolStripMenuItem.Text = "Manage Products";
             this.manageToolStripMenuItem.Click += new System.EventHandler(this.manageToolStripMenuItem_Click);
             // 
             // manageStocksToolStripMenuItem
             // 
             this.manageStocksToolStripMenuItem.Name = "manageStocksToolStripMenuItem";
-            this.manageStocksToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manageStocksToolStripMenuItem.Size = new System.Drawing.Size(167, 22);
             this.manageStocksToolStripMenuItem.Text = "Manage Stocks";
             // 
             // toolStripDropDownButton2
@@ -181,19 +181,19 @@
             // expiredItemsToolStripMenuItem
             // 
             this.expiredItemsToolStripMenuItem.Name = "expiredItemsToolStripMenuItem";
-            this.expiredItemsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.expiredItemsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.expiredItemsToolStripMenuItem.Text = "Expired Items";
             // 
             // damageToolStripMenuItem
             // 
             this.damageToolStripMenuItem.Name = "damageToolStripMenuItem";
-            this.damageToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.damageToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.damageToolStripMenuItem.Text = "Damage";
             // 
             // manageReportsToolStripMenuItem
             // 
             this.manageReportsToolStripMenuItem.Name = "manageReportsToolStripMenuItem";
-            this.manageReportsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.manageReportsToolStripMenuItem.Size = new System.Drawing.Size(160, 22);
             this.manageReportsToolStripMenuItem.Text = "Manage Reports";
             // 
             // toolStripDropDownButton3
@@ -214,6 +214,7 @@
             this.systemAccountsToolStripMenuItem.Name = "systemAccountsToolStripMenuItem";
             this.systemAccountsToolStripMenuItem.Size = new System.Drawing.Size(182, 22);
             this.systemAccountsToolStripMenuItem.Text = "System Accounts";
+            this.systemAccountsToolStripMenuItem.Click += new System.EventHandler(this.systemAccountsToolStripMenuItem_Click);
             // 
             // logoutToolStripMenuItem
             // 

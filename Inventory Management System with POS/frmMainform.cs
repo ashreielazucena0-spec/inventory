@@ -54,5 +54,14 @@ namespace Inventory_Management_System_with_POS
         {
 
         }
+
+        private void systemAccountsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Hide();
+
+            var formAccounts = new frmAccounts(_db);
+
+            formAccounts.ShowDialog();
+        }
     }
 }
