@@ -22,7 +22,7 @@ namespace Inventory_Management_System_with_POS
             {
                 
 
-                string str = "Server=localhost;Database=inventorydb;User id=root;Password=;";
+                string str = "Server=localhost;Database=inventory_db;User id=root;Password=;";
                 conn.ConnectionString = str;
                 conn.Open();
 

@@ -57,11 +57,40 @@ namespace Inventory_Management_System_with_POS
 
         private void systemAccountsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            this.Hide();
+            var accoumtform = new frmAccounts(_db);
+            OpenChildForm(accoumtform);
+        }
+        private List<Form> _openChildForm = new List<Form>();
 
-            var formAccounts = new frmAccounts(_db);
+        private void OpenChildForm(Form childform)
+        {
+            foreach (Form form in _openChildForm)
+            {
+                form.Close();
+            }
+            _openChildForm.Clear();
 
-            formAccounts.ShowDialog();
+            childform.TopLevel = false;
+            panel2.Controls.Add(childform);
+            childform.Show();
+            _openChildForm.Add(childform);
+            }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void exitAppToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void logoutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            frmLoginform login = new frmLoginform();
+            login.Show();
+            this.Close();
         }
     }
 }

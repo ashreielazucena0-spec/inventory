@@ -66,7 +66,7 @@ namespace Inventory_Management_System_with_POS
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            frmCreateAccount frmCreateAccount = new frmCreateAccount();
+            frmCreateAccount frmCreateAccount = new frmCreateAccount(_db);
             frmCreateAccount.ShowDialog();
             this.Hide();
         }
