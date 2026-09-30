@@ -53,13 +53,14 @@
             // 
             // toolStrip1
             // 
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.btnExit});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-            this.toolStrip1.Size = new System.Drawing.Size(435, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(527, 27);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -69,7 +70,7 @@
             this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
             this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(78, 22);
+            this.toolStripButton1.Size = new System.Drawing.Size(95, 24);
             this.toolStripButton1.Text = "LOGIN FORM";
             // 
             // btnExit
@@ -79,7 +80,7 @@
             this.btnExit.Image = global::Inventory_Management_System_with_POS.Properties.Resources.exit_button;
             this.btnExit.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(23, 22);
+            this.btnExit.Size = new System.Drawing.Size(29, 24);
             this.btnExit.Text = "toolStripButton2";
             this.btnExit.ToolTipText = "Exit?";
             this.btnExit.Click += new System.EventHandler(this.toolStripButton2_Click);
@@ -102,7 +103,7 @@
             this.panel1.Controls.Add(this.pictureBox1);
             this.panel1.Location = new System.Drawing.Point(0, 28);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(206, 408);
+            this.panel1.Size = new System.Drawing.Size(256, 472);
             this.panel1.TabIndex = 2;
             this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
@@ -113,7 +114,7 @@
             this.label5.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.label5.Location = new System.Drawing.Point(47, 365);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(153, 32);
+            this.label5.Size = new System.Drawing.Size(204, 42);
             this.label5.TabIndex = 3;
             this.label5.Text = "Developed by \r\nIRISA MAY E. ABENES";
             // 
@@ -124,7 +125,7 @@
             this.label4.ForeColor = System.Drawing.SystemColors.ButtonFace;
             this.label4.Location = new System.Drawing.Point(9, 183);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(195, 54);
+            this.label4.Size = new System.Drawing.Size(247, 69);
             this.label4.TabIndex = 2;
             this.label4.Text = " Welcome to the\r\n Inventory Management \r\nSystem with Point of Sales";
             this.label4.Click += new System.EventHandler(this.label4_Click);
@@ -133,43 +134,43 @@
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(228, 65);
+            this.label1.Location = new System.Drawing.Point(262, 54);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(160, 18);
+            this.label1.Size = new System.Drawing.Size(205, 24);
             this.label1.TabIndex = 3;
             this.label1.Text = "Login to your account";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(228, 108);
+            this.label2.Location = new System.Drawing.Point(274, 103);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(71, 18);
+            this.label2.Size = new System.Drawing.Size(89, 23);
             this.label2.TabIndex = 4;
             this.label2.Text = "Username";
             // 
             // txtUsername
             // 
-            this.txtUsername.Location = new System.Drawing.Point(231, 129);
+            this.txtUsername.Location = new System.Drawing.Point(291, 131);
             this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Size = new System.Drawing.Size(161, 26);
+            this.txtUsername.Size = new System.Drawing.Size(161, 30);
             this.txtUsername.TabIndex = 5;
             this.txtUsername.TextChanged += new System.EventHandler(this.txtUsername_TextChanged);
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(228, 169);
+            this.label3.Location = new System.Drawing.Point(274, 164);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(67, 18);
+            this.label3.Size = new System.Drawing.Size(86, 23);
             this.label3.TabIndex = 6;
             this.label3.Text = "Password";
             // 
             // txtPassword
             // 
-            this.txtPassword.Location = new System.Drawing.Point(231, 190);
+            this.txtPassword.Location = new System.Drawing.Point(291, 190);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(161, 26);
+            this.txtPassword.Size = new System.Drawing.Size(161, 30);
             this.txtPassword.TabIndex = 7;
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txtPassword_TextChanged);
@@ -177,9 +178,9 @@
             // checkBox1
             // 
             this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(231, 222);
+            this.checkBox1.Location = new System.Drawing.Point(291, 227);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(123, 22);
+            this.checkBox1.Size = new System.Drawing.Size(155, 27);
             this.checkBox1.TabIndex = 8;
             this.checkBox1.Text = "Show Password";
             this.checkBox1.UseVisualStyleBackColor = true;
@@ -188,9 +189,9 @@
             // button1
             // 
             this.button1.BackColor = System.Drawing.Color.Gold;
-            this.button1.Location = new System.Drawing.Point(231, 260);
+            this.button1.Location = new System.Drawing.Point(297, 260);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(79, 27);
+            this.button1.Size = new System.Drawing.Size(86, 36);
             this.button1.TabIndex = 9;
             this.button1.Text = "LOGIN";
             this.button1.UseVisualStyleBackColor = false;
@@ -199,9 +200,9 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(368, 335);
+            this.linkLabel1.Location = new System.Drawing.Point(447, 335);
             this.linkLabel1.Name = "linkLabel1";
-            this.linkLabel1.Size = new System.Drawing.Size(54, 18);
+            this.linkLabel1.Size = new System.Drawing.Size(68, 23);
             this.linkLabel1.TabIndex = 11;
             this.linkLabel1.TabStop = true;
             this.linkLabel1.Text = "Sign Up";
@@ -211,9 +212,9 @@
             // 
             this.linkLabel2.AutoSize = true;
             this.linkLabel2.LinkColor = System.Drawing.Color.Black;
-            this.linkLabel2.Location = new System.Drawing.Point(212, 335);
+            this.linkLabel2.Location = new System.Drawing.Point(274, 335);
             this.linkLabel2.Name = "linkLabel2";
-            this.linkLabel2.Size = new System.Drawing.Size(150, 18);
+            this.linkLabel2.Size = new System.Drawing.Size(190, 23);
             this.linkLabel2.TabIndex = 12;
             this.linkLabel2.TabStop = true;
             this.linkLabel2.Text = "Don\'t have an account?";
@@ -221,9 +222,9 @@
             // button2
             // 
             this.button2.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.button2.Location = new System.Drawing.Point(332, 260);
+            this.button2.Location = new System.Drawing.Point(398, 260);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(79, 27);
+            this.button2.Size = new System.Drawing.Size(87, 36);
             this.button2.TabIndex = 13;
             this.button2.Text = "CLEAR";
             this.button2.UseVisualStyleBackColor = false;
@@ -231,10 +232,10 @@
             // 
             // frmLoginform
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 18F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.MistyRose;
-            this.ClientSize = new System.Drawing.Size(435, 434);
+            this.BackColor = System.Drawing.Color.Pink;
+            this.ClientSize = new System.Drawing.Size(527, 497);
             this.ControlBox = false;
             this.Controls.Add(this.button2);
             this.Controls.Add(this.linkLabel2);

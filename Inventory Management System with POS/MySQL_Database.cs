@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using System.Windows.Forms;
 
@@ -10,38 +6,82 @@ namespace Inventory_Management_System_with_POS
 {
     public class MySQL_Database
     {
+        public const string ConnectionString = "Server=localhost;Database=inventory _system;User id=root;Password=123456789;";
+          
 
         public MySqlConnection conn = new MySqlConnection();
         public MySqlCommand cmd = new MySqlCommand();
         public MySqlDataReader dr;
 
-
         public void ConnectToDatabase()
         {
             try
             {
-                
-
-                string str = "Server=localhost;Database=inventory_db;User id=root;Password=;";
-                conn.ConnectionString = str;
-                conn.Open();
-
                 if (conn.State == System.Data.ConnectionState.Open)
-                {
-                    MessageBox.Show("Connection Established!", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    
-                }
-                else
-                {
-                    MessageBox.Show("Connection Failed!", "Message", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    
-                }
+                    conn.Close();
+
+                conn.ConnectionString = ConnectionString;
+                conn.Open();
+            }
+            catch (MySqlException ex)
+            {
+                MessageBox.Show(
+                    Db.Friendly(ex),
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                
+                MessageBox.Show(
+                    ex.Message,
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
+        }
+
+        public void DisconnectFromDatabase()
+        {
+            try
+            {
+                if (conn.State == System.Data.ConnectionState.Open)
+                    conn.Close();
+            }
+            catch
+            {
+            }
+        }
+
+        public bool IsConnected()
+        {
+            try
+            {
+                if (conn.State != System.Data.ConnectionState.Open)
+                {
+                    conn.ConnectionString = ConnectionString;
+                    conn.Open();
+                }
+
+                return conn.State == System.Data.ConnectionState.Open;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public MySqlConnection GetConnection()
+        {
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                conn.ConnectionString = ConnectionString;
+                conn.Open();
+            }
+
+            return conn;
         }
     }
 }
