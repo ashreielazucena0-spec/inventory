@@ -154,7 +154,7 @@ namespace Inventory_Management_System_with_POS
                   WHERE si.sale_id = @id ORDER BY si.sale_item_id", Db.P("@id", saleId));
 
             var L = new List<string>();
-            L.Add(Center("ABENES ELEVEN MART", W));
+            L.Add(Center("TOP MART", W));
             L.Add(Center("Official Receipt", W));
             L.Add(new string('-', W));
             L.Add("Invoice : " + saleId);

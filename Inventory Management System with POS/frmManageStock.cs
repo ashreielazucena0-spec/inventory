@@ -47,9 +47,9 @@ namespace Inventory_Management_System_with_POS
             dateTimePicker1.MaxDate = DateTime.Today;
             dateTimePicker1.Value = DateTime.Today;
 
-            Wire(button1, delegate { comboBox3.Focus(); });   // Adjust Stock (top tab)
-            Wire(button2, ViewLogs);                          // View Logs (top tab)
-            Wire(button3, SetAlertLevel);                     // Set Reorder Levels (top tab)
+           // Wire(button1, delegate { comboBox3.Focus(); });   // Adjust Stock (top tab)
+          //  Wire(button2, ViewLogs);                          // View Logs (top tab)
+          //  Wire(button3, SetAlertLevel);                     // Set Reorder Levels (top tab)
             Wire(button4, ClearEntry);                        // CANCEL
             Wire(button5, LoadSelectedIntoEntry);             // UPDATE SELECTED STOCK
             Wire(button6, ViewLogs);                          // VIEW ADJUSTMENT LOGS

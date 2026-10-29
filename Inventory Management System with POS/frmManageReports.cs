@@ -46,9 +46,9 @@ namespace Inventory_Management_System_with_POS
             dateTimePicker1.Value = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             dateTimePicker2.Value = DateTime.Today;
 
-            Wire(button1, delegate { ClearFilters(null, EventArgs.Empty); comboBox1.Focus(); });   // Create Report (top tab)
-            Wire(button2, ViewSelected);                                                            // View Report
-            Wire(button3, PrintSelected);                                                           // Print / Export
+           // Wire(button1, delegate { ClearFilters(null, EventArgs.Empty); comboBox1.Focus(); });   // Create Report (top tab)
+          //  Wire(button2, ViewSelected);                                                            // View Report
+           // Wire(button3, PrintSelected);                                                           // Print / Export
             Wire(button4, ClearFilters);                                                            // CLEAR
             Wire(button5, DeleteSelected);                                                          // DELETE REPORT
             Wire(button6, ExportSelected);                                                          // EXPORT TO EXCEL
@@ -235,12 +235,7 @@ namespace Inventory_Management_System_with_POS
             if (r != null) Printer.PrintTable(r.Type, r.Params, r.Data);
         }
 
-        private void ExportSelected(object sender, EventArgs e)
-        {
-            ReportEntry r = RequireSelected();
-            if (r != null) Csv.Export(r.Data, r.Type.Replace(' ', '_'));
-        }
-
+       
         /// <summary>ACTIVATE REPORT: re-runs the selected report with its saved filters so it shows current data.</summary>
         private void RefreshSelected(object sender, EventArgs e)
         {
@@ -272,5 +267,16 @@ namespace Inventory_Management_System_with_POS
         {
             Close();
         }
+
+        private void ExportSelected(object sender, EventArgs e)
+        {
+            ReportEntry r = RequireSelected();
+            if (r == null) return;
+            ExcelExport.Export(r.Data, r.Type,
+                r.Params + "   |   generated " + r.GeneratedAt.ToString("yyyy-MM-dd HH:mm") + " by " + r.By,
+                r.Type.Replace(' ', '_'));
+        }
+
+        
     }
 }

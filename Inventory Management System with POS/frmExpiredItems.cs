@@ -6,16 +6,17 @@ using System.Windows.Forms;
 namespace Inventory_Management_System_with_POS
 {
     /// <summary>
-    /// Expired Items: finds batches by expiry date (from tbl_stock_log IN rows, see InventoryService.GetBatches),
-    /// disposes expired units (OUT / EXPIRED) and suggests markdown prices for items close to expiry.
+    /// Expired Items: finds batches that are already expired or will expire within N days
+    /// (N = numericUpDown1, "Expire in: [N] Day/s"), using tbl_stock_log IN rows (see InventoryService.GetBatches).
+    /// Disposes expired units (OUT / EXPIRED) and suggests markdown prices for items close to expiry.
     ///
-    /// Control map:  textBox13 Product ID | textBox1 Name | textBox4 Barcode | dateTimePicker1/2 Expiry from/to |
+    /// Control map:  textBox13 Product ID | textBox1 Name | textBox4 Barcode | numericUpDown1 Expire in (days) |
     /// textBox11 Selected item | textBox5 Units in batch | textBox6 Dispose quantity | textBox7 Discount % | textBox9 Dispose reason |
-    /// textBox2 batches found | textBox3 units affected | textBox8 items needing action.
+    /// textBox2 items found | textBox3 units affected | textBox8 items already expired.
     /// </summary>
     public partial class frmExpiredItems : Form
     {
-        private const int SoonDays = 7;
+        private const int DefaultDays = 7;
 
         private class BatchRef
         {
@@ -40,14 +41,15 @@ namespace Inventory_Management_System_with_POS
             if (!dataGridView1.Columns.Contains("colBatch"))
                 dataGridView1.Columns.Add(new DataGridViewTextBoxColumn { Name = "colBatch", HeaderText = "Batch No" });
 
-            dateTimePicker1.Value = new DateTime(2000, 1, 1);     // show all expired stock, however old
-            dateTimePicker2.Value = DateTime.Today;
+            // "Expire in: [N] Day/s"
+            numericUpDown1.Minimum = 0;
+            numericUpDown1.Maximum = 3650;
+            numericUpDown1.Value = DefaultDays;                                        // default: 7 days
+            numericUpDown1.ValueChanged += (s, a) => Search(null, EventArgs.Empty);    // auto-refresh when the number changes
+
             textBox9.Text = "Expired";
 
-            Wire(button1, PrepareDisposal);       // Dispose Product (top tab)
             Wire(button2, SuggestPrice);          // SET DISCOUNTED PRICE
-            Wire(button3, ProcessDiscount);       // Process Discount (top tab)
-            Wire(button4, Search);                // Recalculate Expiry
             Wire(button6, Search);                // SEARCH EXPIRED ITEMS
             Wire(button8, ConfirmDisposal);       // CONFIRM DISPOSAL
 
@@ -69,11 +71,8 @@ namespace Inventory_Management_System_with_POS
         {
             try
             {
-                if (dateTimePicker1.Value.Date > dateTimePicker2.Value.Date)
-                {
-                    Ui.Warn("The 'From' date must not be after the 'To' date.");
-                    return;
-                }
+                int days = (int)numericUpDown1.Value;
+                DateTime limit = DateTime.Today.AddDays(days);      // today + N days
 
                 string id = textBox13.Text.Trim().ToLower();
                 string name = textBox1.Text.Trim().ToLower();
@@ -87,14 +86,21 @@ namespace Inventory_Management_System_with_POS
                 foreach (DataRow r in batches.Select("", "expiry_date ASC, product_name ASC"))
                 {
                     DateTime exp = Convert.ToDateTime(r["expiry_date"]).Date;
-                    if (exp < dateTimePicker1.Value.Date || exp > dateTimePicker2.Value.Date) continue;
+
+                    // show items already expired OR expiring within N days
+                    // (to hide the already-expired ones, use: if (exp > limit || exp < DateTime.Today) continue;)
+                    if (exp > limit) continue;
                     if (id.Length > 0 && !r["product_id"].ToString().ToLower().Contains(id)) continue;
                     if (name.Length > 0 && !r["product_name"].ToString().ToLower().Contains(name)) continue;
                     if (bar.Length > 0 && !r["barcode"].ToString().ToLower().Contains(bar)) continue;
 
                     int left = Db.ToInt(r["remaining"]);
+                    if (left <= 0) continue;                         // skip batches with no stock left
+
+                    int daysLeft = (exp - DateTime.Today).Days;
                     string status = exp < DateTime.Today ? "Expired - dispose"
-                                  : exp <= DateTime.Today.AddDays(SoonDays) ? "Expiring soon" : "OK";
+                                  : daysLeft == 0 ? "Expires today"
+                                  : "Expires in " + daysLeft + " day(s)";
                     if (exp < DateTime.Today) expiredCount++;
                     units += left;
 
@@ -103,18 +109,22 @@ namespace Inventory_Management_System_with_POS
                     DataGridViewRow row = dataGridView1.Rows[i];
                     row.Tag = new BatchRef
                     {
-                        ProductId = r["product_id"].ToString(), ProductName = r["product_name"].ToString(), BatchNo = r["batch_no"].ToString(),
-                        Expiry = exp, Remaining = left, Cost = Db.ToDec(r["cost_price"]), Price = Db.ToDec(r["selling_price"])
+                        ProductId = r["product_id"].ToString(),
+                        ProductName = r["product_name"].ToString(),
+                        BatchNo = r["batch_no"].ToString(),
+                        Expiry = exp,
+                        Remaining = left,
+                        Cost = Db.ToDec(r["cost_price"]),
+                        Price = Db.ToDec(r["selling_price"])
                     };
-                    if (exp < DateTime.Today) row.Cells[5].Style.ForeColor = Color.Red;
-                    else if (status == "Expiring soon") row.Cells[5].Style.ForeColor = Color.DarkOrange;
+                    row.Cells[5].Style.ForeColor = exp < DateTime.Today ? Color.Red : Color.DarkOrange;
                     if (keep != null && keep == r["product_id"] + "|" + r["batch_no"]) { dataGridView1.ClearSelection(); row.Selected = true; }
                 }
                 if (keep == null) dataGridView1.ClearSelection();
 
-                textBox2.Text = dataGridView1.Rows.Count.ToString();
-                textBox3.Text = units.ToString();
-                textBox8.Text = expiredCount.ToString();
+                textBox2.Text = dataGridView1.Rows.Count.ToString();   // total items found (expired + expiring)
+                textBox3.Text = units.ToString();                      // total units affected
+                textBox8.Text = expiredCount.ToString();               // items already expired (need action)
                 ShowSelected();
             }
             catch (Exception ex)
@@ -234,13 +244,26 @@ namespace Inventory_Management_System_with_POS
                 t.Rows.Add(b.ProductId, b.ProductName, b.BatchNo, b.Expiry.ToString("yyyy-MM-dd"), b.Remaining, b.Price, pct,
                     Math.Round(b.Price * (1 - pct / 100m), 2), b.Cost);
             }
-            if (t.Rows.Count == 0) { Ui.Info("No near-expiry items in the list. Widen the 'To' date to include items that expire soon."); return; }
+            if (t.Rows.Count == 0) { Ui.Info("No near-expiry items in the list. Increase the 'Expire in' days to include items that expire later."); return; }
             ReportPreviewForm.Show("Suggested Markdown Prices", pct + "% off items in the list that have not expired yet (suggestions only)", t);
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void textBox8_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DataTable dt = ExcelExport.FromGrid(dataGridView1);
+            string sub = "Expired or expiring within " + numericUpDown1.Value + " day(s)   |   Items found: " + textBox2.Text +
+                         "   |   Units affected: " + textBox3.Text + "   |   Already expired: " + textBox8.Text;
+            ExcelExport.Export(dt, "Expired Items Report", sub, "Expired_Items");
         }
     }
 }

@@ -67,7 +67,7 @@ namespace Inventory_Management_System_with_POS
         public static void PrintTable(string title, string subtitle, DataTable dt)
         {
             var lines = new List<string>();
-            lines.Add("ABENES ELEVEN MART");
+            lines.Add("TOP MART");
             lines.Add(title);
             if (!string.IsNullOrEmpty(subtitle)) lines.Add(subtitle);
             lines.Add("Printed " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + " by " + (Session.UserName ?? ""));

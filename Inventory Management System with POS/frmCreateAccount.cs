@@ -6,46 +6,45 @@ using System.Windows.Forms;
 
 namespace Inventory_Management_System_with_POS
 {
-    /// <summary>
-    /// Create / update a row in tbl_account. Opened from System Accounts (create or edit) and
-    /// from the login screen (PublicSignup = true).
-    /// </summary>
     public partial class frmCreateAccount : Form
     {
-        /// <summary>Set true to let the login-screen sign-up create Admin/Manager accounts too. Keep false.</summary>
+        // Keep false so the login-screen sign-up can't create Admin/Manager accounts.
         private const bool AllowPublicPrivilegedSignup = false;
 
         private readonly MySQL_Database _db;
 
-        /// <summary>True when opened from the login screen (nobody is logged in).</summary>
+        // True only when opened from the login screen.
         public bool PublicSignup { get; set; }
+
+        private bool RestrictRoles =>
+            PublicSignup && !AllowPublicPrivilegedSignup && !Account_Variables.isEditMode;
 
         public frmCreateAccount(MySQL_Database db)
         {
             InitializeComponent();
             _db = db;
-
-            // Filled here (not in Load) so the edit screen can pre-select the account type before it is shown.
-            cbAccountType.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbAccountType.Items.Clear();
-            cbAccountType.Items.AddRange(new string[] { "Admin", "Manager", "Cashier", "Inventory Staff" });
         }
 
         private void frmCreateAccount_Load(object sender, EventArgs e)
         {
             txtPassword.UseSystemPasswordChar = true;
 
-            if (PublicSignup && !AllowPublicPrivilegedSignup && !Account_Variables.isEditMode)
+            string current = cbAccountType.Text;
+
+            cbAccountType.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbAccountType.Items.Clear();
+            cbAccountType.Items.AddRange(new object[] { "Admin", "Cashier", "Inventory Staff", "Manager" });
+
+            if (!string.IsNullOrEmpty(current) && cbAccountType.Items.Contains(current))
+                cbAccountType.SelectedItem = current;
+
+            if (RestrictRoles)
             {
-                cbAccountType.Items.Clear();
-                cbAccountType.Items.Add("Cashier");
-                cbAccountType.SelectedIndex = 0;
-                cbAccountType.Enabled = false;
+                cbAccountType.Items.Remove("Admin");
+                cbAccountType.Items.Remove("Manager");
+                cbAccountType.SelectedItem = "Cashier";
             }
-            else
-            {
-                cbAccountType.Enabled = true;
-            }
+            cbAccountType.Enabled = true;
 
             if (!Account_Variables.isEditMode) ShowNextId();
         }
@@ -53,7 +52,7 @@ namespace Inventory_Management_System_with_POS
         private void ShowNextId()
         {
             try { txtAccID.Text = Db.NextId("tbl_account", "acc_id", "ACC-", 3); }
-            catch { /* leave blank; the user can type an id */ }
+            catch { }
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -67,7 +66,6 @@ namespace Inventory_Management_System_with_POS
             string phone = txtphone.Text.Trim();
             string mail = txtmail.Text.Trim();
 
-            // ---- validation ----
             if (id.Length == 0 || name.Length == 0 || type.Length == 0 || user.Length == 0 || (!edit && pass.Length == 0))
             {
                 Ui.Error("Please fill in all required fields.");
@@ -80,9 +78,14 @@ namespace Inventory_Management_System_with_POS
             if (phone.Length > 0 && !Regex.IsMatch(phone, @"^[0-9+\-\s()]{7,20}$")) { Ui.Error("Phone number looks invalid."); return; }
             if (mail.Length > 0 && !IsEmail(mail)) { Ui.Error("Email address looks invalid."); return; }
 
+            if (RestrictRoles && (type == "Admin" || type == "Manager"))
+            {
+                Ui.Error("Public sign-up can't create Admin or Manager accounts.");
+                return;
+            }
+
             try
             {
-                // ---- duplicates ----
                 if (Db.ToInt(Db.Scalar("SELECT COUNT(*) FROM tbl_account WHERE user_name = @u AND acc_id <> @id",
                         Db.P("@u", user), Db.P("@id", id))) > 0)
                 {
@@ -99,7 +102,6 @@ namespace Inventory_Management_System_with_POS
 
                 if (edit)
                 {
-                    // Never leave the system without an active Admin.
                     if (type != "Admin" && IsLastActiveAdmin(id))
                     {
                         Ui.Error("This is the only active Admin account, so its type can't be changed.");
@@ -164,10 +166,13 @@ namespace Inventory_Management_System_with_POS
 
         private void ClearFields()
         {
+            bool restrict = RestrictRoles;
+
             txtAccID.Clear();
             txtAccID.ReadOnly = false;
             txtAccName.Clear();
-            if (cbAccountType.Enabled) cbAccountType.SelectedIndex = -1;
+            cbAccountType.SelectedIndex = -1;
+            if (restrict) cbAccountType.SelectedItem = "Cashier";
             radioButton1.Checked = false;
             radioButton2.Checked = false;
             txtUsername.Clear();

@@ -11,12 +11,21 @@ namespace Inventory_Management_System_with_POS
     ///
     /// Control map:  textBox13 Product ID | textBox1 Name | comboBox1 Category | comboBox2 Supplier
     /// (this box was "Unit of Measure", which has no column in tbl_product) | textBox2 Cost | textBox3 Retail price |
-    /// textBox4 Barcode | textBox5 Stock level | textBox6 Minimum stock alert | textBox10 Search |
-    /// textBox9 / textBox7 / textBox8 = total / active / low-stock counts.
+    /// textBox4 Barcode | textBox5 Stock level | textBox6 Minimum stock alert | dateTimePicker1 Expiration date |
+    /// textBox10 Search | textBox9 / textBox7 / textBox8 = total / active / low-stock counts.
+    ///
+    /// Expiration date: tbl_product has no expiry column. Expiry is stored per batch in tbl_stock_log (IN rows),
+    /// so the date picked here is saved with the opening stock when the product is added, and when a product is
+    /// edited the picker shows (and UPDATE PRODUCT changes) the expiry of its earliest batch that still has stock.
+    /// Tick the checkbox on the picker to set a date; leave it unticked for products that never expire.
     /// </summary>
     public partial class frmManageProduct : Form
     {
         private string _editId;   // null = adding a new product
+
+        // edit mode: the batch whose expiration date the picker shows / updates
+        private DateTime? _editExpiry;      // expiry the batch had when the product was loaded (null = none)
+        private string _editBatchNo = "";   // that batch's batch number ("" = none)
 
         public frmManageProduct()
         {
@@ -28,6 +37,7 @@ namespace Inventory_Management_System_with_POS
             public string Name, Barcode, CategoryId, SupplierId;
             public decimal Cost, Price;
             public int Stock, Threshold;
+            public DateTime? Expiry;      // null = product has no expiration date
         }
 
         // ------------------------------------------------------------------ setup
@@ -42,9 +52,14 @@ namespace Inventory_Management_System_with_POS
             comboBox2.DropDownStyle = ComboBoxStyle.DropDown;
             Ui.SetupGrid(dataGridView1);
 
-            Wire(button1, NewProduct);           // top tab: Add Product
-            Wire(button2, EditSelected);         // top tab: Edit Product
-            Wire(button3, ToggleStatus);         // top tab: Deactivate / Activate
+            // Expiration Date picker: tick the box to set a date, untick = no expiry
+            dateTimePicker1.Format = DateTimePickerFormat.Short;
+            dateTimePicker1.ShowCheckBox = true;
+            dateTimePicker1.Checked = false;
+
+            //  Wire(button1, NewProduct);           // top tab: Add Product
+            // Wire(button2, EditSelected);         // top tab: Edit Product
+            //  Wire(button3, ToggleStatus);         // top tab: Deactivate / Activate
             Wire(button4, NewProduct);           // CLEAR
             Wire(button5, EditSelected);         // EDIT
             Wire(button7, AddProduct);           // ADD NEW PRODUCT
@@ -109,6 +124,9 @@ namespace Inventory_Management_System_with_POS
             textBox5.Text = "0";
             textBox5.ReadOnly = false;      // opening stock can be entered when adding
             textBox6.Text = "10";
+            dateTimePicker1.Value = DateTime.Today;
+            dateTimePicker1.Checked = false;
+            dateTimePicker1.Enabled = true;  // expiry can be set when adding
             button7.Enabled = true;
             button8.Enabled = false;
             textBox1.Focus();
@@ -134,9 +152,37 @@ namespace Inventory_Management_System_with_POS
             textBox5.Text = r["qty"].ToString();
             textBox5.ReadOnly = true;       // stock changes go through Manage Stocks so they are logged
             textBox6.Text = r["thr"].ToString();
+            LoadExpiry(id);
             button7.Enabled = false;
             button8.Enabled = true;
             textBox1.Focus();
+        }
+
+        /// <summary>
+        /// Shows the product's expiration date in the picker: the earliest expiry among its batches that still have stock.
+        /// If the product has several batches only that earliest one is shown and updated (other batches are managed in Manage Stocks).
+        /// </summary>
+        private void LoadExpiry(string id)
+        {
+            _editExpiry = null;
+            _editBatchNo = "";
+            dateTimePicker1.Value = DateTime.Today;
+            dateTimePicker1.Checked = false;
+
+            // the date lives on the product's stock-in rows; no stock-in rows = nothing to attach a date to
+            bool hasStockRows = Db.ToInt(Db.Scalar("SELECT COUNT(*) FROM tbl_stock_log WHERE product_id = @id AND movement_type = 'IN'",
+                Db.P("@id", id))) > 0;
+            dateTimePicker1.Enabled = hasStockRows;
+            if (!hasStockRows) return;
+
+            DataRow[] rows = InventoryService.GetBatches(null).Select(
+                "product_id = '" + id.Replace("'", "''") + "' AND remaining > 0", "expiry_date ASC");
+            if (rows.Length == 0) return;
+
+            _editExpiry = Convert.ToDateTime(rows[0]["expiry_date"]).Date;
+            _editBatchNo = rows[0]["batch_no"].ToString();
+            dateTimePicker1.Value = _editExpiry.Value;
+            dateTimePicker1.Checked = true;
         }
 
         private void EditSelected(object sender, EventArgs e)
@@ -155,9 +201,7 @@ namespace Inventory_Management_System_with_POS
 
         private void RefreshToggleCaption()
         {
-            if (dataGridView1.SelectedRows.Count == 0) { button3.Text = "Deactivate Product"; return; }
-            string status = dataGridView1.SelectedRows[0].Cells[5].Value as string;
-            button3.Text = status == "Inactive" ? "Activate Product" : "Deactivate Product";
+
         }
 
         private void LoadProducts()
@@ -226,11 +270,28 @@ namespace Inventory_Management_System_with_POS
             if (barcode.Length > 50) { Ui.Warn("Barcode is too long (max 50 characters)."); return false; }
 
             int stock = 0, thr;
-            if (_editId == null && !Ui.TryInt(textBox5.Text, out stock) ) { Ui.Warn("Enter the opening stock as a whole number (0 if none)."); textBox5.Focus(); return false; }
+            if (_editId == null && !Ui.TryInt(textBox5.Text, out stock)) { Ui.Warn("Enter the opening stock as a whole number (0 if none)."); textBox5.Focus(); return false; }
             if (stock < 0) { Ui.Warn("Stock can't be negative."); textBox5.Focus(); return false; }
             if (!Ui.TryInt(textBox6.Text, out thr) || thr < 0) { Ui.Warn("Enter the minimum stock alert as a whole number."); textBox6.Focus(); return false; }
 
-            v = new Input { Name = name, Barcode = barcode, Cost = cost, Price = price, Stock = stock, Threshold = thr };
+            // expiration date (saved with the opening stock when adding; updates the product's batch when editing)
+            DateTime? expiry = null;
+            if (dateTimePicker1.Enabled && dateTimePicker1.Checked)
+            {
+                if (_editId == null && stock <= 0)
+                {
+                    Ui.Warn("The expiration date is saved with the opening stock.\nEnter a stock level greater than zero, or untick the Expiration Date box.");
+                    textBox5.Focus();
+                    return false;
+                }
+                expiry = dateTimePicker1.Value.Date;
+                // only ask about a past date when it is new or was changed
+                if (expiry.Value < DateTime.Today && (_editId == null || expiry != _editExpiry) &&
+                    !Ui.Confirm("The expiration date (" + expiry.Value.ToString("yyyy-MM-dd") + ") is already in the past.\nSave anyway?"))
+                    return false;
+            }
+
+            v = new Input { Name = name, Barcode = barcode, Cost = cost, Price = price, Stock = stock, Threshold = thr, Expiry = expiry };
             return true;
         }
 
@@ -272,7 +333,10 @@ namespace Inventory_Management_System_with_POS
         }
 
         // ------------------------------------------------------------------ add
-        /// <summary>ADD NEW PRODUCT: creates the product, its stock row, and (if opening stock &gt; 0) a stock-in log entry.</summary>
+        /// <summary>
+        /// ADD NEW PRODUCT: creates the product, its stock row, and (if opening stock &gt; 0) a stock-in log entry
+        /// that carries the expiration date picked in dateTimePicker1.
+        /// </summary>
         private void AddProduct(object sender, EventArgs e)
         {
             Input v;
@@ -282,13 +346,6 @@ namespace Inventory_Management_System_with_POS
             {
                 if (BarcodeTaken(v.Barcode, null)) { Ui.Warn("Another product already uses that barcode."); textBox4.Focus(); return; }
                 if (!ResolveLookups(v)) return;
-
-                StockInInfo batch = null;
-                if (v.Stock > 0)
-                {
-                    batch = Ui.AskStockIn(v.Name, v.Cost, v.SupplierId);
-                    if (batch == null) return;
-                }
 
                 string newId;
                 using (var c = Db.Open())
@@ -304,10 +361,11 @@ namespace Inventory_Management_System_with_POS
                             Db.PN("@s", v.SupplierId), Db.P("@cost", v.Cost), Db.P("@price", v.Price));
                         Db.Exec(c, tx, "INSERT INTO tbl_stock (product_id, quantity, low_stock_threshold) VALUES (@id, 0, @t)",
                             Db.P("@id", newId), Db.P("@t", v.Threshold));
-                        if (batch != null)
+                        if (v.Stock > 0)
                         {
-                            InventoryService.ApplyMovement(c, tx, newId, "IN", "PURCHASE", v.Stock, batch.BatchNo, batch.Expiry,
-                                batch.UnitCost, string.IsNullOrEmpty(batch.SupplierId) ? v.SupplierId : batch.SupplierId,
+                            // opening stock batch: expiry comes from the Expiration Date picker (null = never expires)
+                            InventoryService.ApplyMovement(c, tx, newId, "IN", "PURCHASE", v.Stock, null, v.Expiry,
+                                v.Cost, string.IsNullOrEmpty(v.SupplierId) ? null : v.SupplierId,
                                 null, Session.UserId, "Opening stock on product creation", null);
                         }
                         tx.Commit();
@@ -357,6 +415,21 @@ namespace Inventory_Management_System_with_POS
                             @"INSERT INTO tbl_stock (product_id, quantity, low_stock_threshold) VALUES (@id, 0, @t)
                               ON DUPLICATE KEY UPDATE low_stock_threshold = @t",
                             Db.P("@id", _editId), Db.P("@t", v.Threshold));
+
+                        // expiration date changed? update every log row of that batch so the batch stays together
+                        if (dateTimePicker1.Enabled && v.Expiry != _editExpiry)
+                        {
+                            object newExp = v.Expiry.HasValue ? (object)v.Expiry.Value : DBNull.Value;
+                            if (_editExpiry.HasValue)
+                                Db.Exec(c, tx,
+                                    @"UPDATE tbl_stock_log SET expiry_date = @e
+                                      WHERE product_id = @id AND IFNULL(batch_no,'') = @b AND expiry_date = @old",
+                                    Db.P("@e", newExp), Db.P("@id", _editId), Db.P("@b", _editBatchNo), Db.P("@old", _editExpiry.Value));
+                            else
+                                Db.Exec(c, tx,
+                                    "UPDATE tbl_stock_log SET expiry_date = @e WHERE product_id = @id AND expiry_date IS NULL",
+                                    Db.P("@e", newExp), Db.P("@id", _editId));
+                        }
                         tx.Commit();
                     }
                     catch
@@ -457,5 +530,10 @@ namespace Inventory_Management_System_with_POS
         }
 
         private void panel1_Paint(object sender, PaintEventArgs e) { }
+
+        private void label6_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

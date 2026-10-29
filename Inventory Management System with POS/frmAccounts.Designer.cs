@@ -78,6 +78,7 @@
             // 
             // pictureBox1
             // 
+            this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.Image = global::Inventory_Management_System_with_POS.Properties.Resources.button;
             this.pictureBox1.Location = new System.Drawing.Point(1023, 11);
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(4);

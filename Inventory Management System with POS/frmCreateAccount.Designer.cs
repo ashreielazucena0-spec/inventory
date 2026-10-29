@@ -145,6 +145,7 @@
             // 
             // cbAccountType
             // 
+            this.cbAccountType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cbAccountType.FormattingEnabled = true;
             this.cbAccountType.Items.AddRange(new object[] {
             "Admin",

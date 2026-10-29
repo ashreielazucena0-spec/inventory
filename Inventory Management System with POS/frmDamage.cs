@@ -55,9 +55,9 @@ namespace Inventory_Management_System_with_POS
             textBox6.AutoCompleteSource = AutoCompleteSource.CustomSource;
             textBox6.AutoCompleteCustomSource = dispList;
 
-            Wire(button1, delegate { ClearEntry(null, EventArgs.Empty); textBox13.Focus(); });   // Log Damage (top tab)
-            Wire(button2, SetDisposition);                                                       // Disposal/Return
-            Wire(button3, ViewHistory);                                                          // View History
+          //  Wire(button1, delegate { ClearEntry(null, EventArgs.Empty); textBox13.Focus(); });   // Log Damage (top tab)
+          //  Wire(button2, SetDisposition);                                                       // Disposal/Return
+          //  Wire(button3, ViewHistory);                                                          // View History
             Wire(button4, ClearEntry);                                                           // CLEAR
             Wire(button5, delegate { LoadLogs(); });                                             // SEARCH
             Wire(button6, UpdateSelectedLog);                                                    // UPDATE SELECTED LOG
@@ -335,5 +335,19 @@ namespace Inventory_Management_System_with_POS
         }
 
         private void label1_Click(object sender, EventArgs e) { }
+
+        private void pictureBox3_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DataTable dt = ExcelExport.FromGrid(dataGridView1);
+            string sub = "Logs: " + textBox9.Text + "   |   Pending dispositions: " + textBox10.Text +
+                         "   |   Total estimated loss: " + textBox11.Text;
+            if (textBox8.Text.Trim().Length > 0) sub += "   |   Filter: " + textBox8.Text.Trim();
+            ExcelExport.Export(dt, "Damage Items Report", sub, "Damage_Items");
+        }
     }
 }

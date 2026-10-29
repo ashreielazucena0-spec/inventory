@@ -29,16 +29,12 @@
         private void InitializeComponent()
         {
             this.panel1 = new System.Windows.Forms.Panel();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button6 = new System.Windows.Forms.Button();
-            this.dateTimePicker2 = new System.Windows.Forms.DateTimePicker();
-            this.label7 = new System.Windows.Forms.Label();
-            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
             this.label6 = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.button6 = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
@@ -75,82 +71,38 @@
             this.label21 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
             this.textBox8 = new System.Windows.Forms.TextBox();
-            this.pictureBox4 = new System.Windows.Forms.PictureBox();
-            this.pictureBox3 = new System.Windows.Forms.PictureBox();
-            this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.button1 = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.LightCoral;
-            this.panel1.Controls.Add(this.pictureBox4);
-            this.panel1.Controls.Add(this.pictureBox3);
-            this.panel1.Controls.Add(this.pictureBox2);
             this.panel1.Controls.Add(this.pictureBox1);
-            this.panel1.Controls.Add(this.button4);
-            this.panel1.Controls.Add(this.button3);
-            this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.label1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.panel1.Location = new System.Drawing.Point(-2, -1);
+            this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1487, 95);
+            this.panel1.Size = new System.Drawing.Size(1466, 95);
             this.panel1.TabIndex = 1;
             // 
-            // button4
+            // pictureBox1
             // 
-            this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.button4.BackColor = System.Drawing.Color.Turquoise;
-            this.button4.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button4.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.button4.Location = new System.Drawing.Point(1097, 13);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(100, 76);
-            this.button4.TabIndex = 4;
-            this.button4.Text = "Recalculate Expiry";
-            this.button4.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.button4.UseVisualStyleBackColor = false;
-            // 
-            // button3
-            // 
-            this.button3.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.button3.BackColor = System.Drawing.Color.PaleTurquoise;
-            this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.button3.Location = new System.Drawing.Point(1009, 13);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(82, 76);
-            this.button3.TabIndex = 3;
-            this.button3.Text = "Process Discount";
-            this.button3.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.button3.UseVisualStyleBackColor = false;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.button1.BackColor = System.Drawing.Color.YellowGreen;
-            this.button1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.button1.Location = new System.Drawing.Point(921, 13);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(82, 76);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Dispose Product";
-            this.button1.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
-            this.button1.UseVisualStyleBackColor = false;
+            this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.pictureBox1.Image = global::Inventory_Management_System_with_POS.Properties.Resources.close__5_;
+            this.pictureBox1.Location = new System.Drawing.Point(1427, 0);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(39, 95);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+            this.pictureBox1.TabIndex = 7;
+            this.pictureBox1.TabStop = false;
+            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
             // 
             // label1
             // 
@@ -166,11 +118,10 @@
             // panel2
             // 
             this.panel2.BackColor = System.Drawing.Color.Khaki;
-            this.panel2.Controls.Add(this.button6);
-            this.panel2.Controls.Add(this.dateTimePicker2);
-            this.panel2.Controls.Add(this.label7);
-            this.panel2.Controls.Add(this.dateTimePicker1);
+            this.panel2.Controls.Add(this.button1);
             this.panel2.Controls.Add(this.label6);
+            this.panel2.Controls.Add(this.numericUpDown1);
+            this.panel2.Controls.Add(this.button6);
             this.panel2.Controls.Add(this.label5);
             this.panel2.Controls.Add(this.textBox4);
             this.panel2.Controls.Add(this.label9);
@@ -179,10 +130,28 @@
             this.panel2.Controls.Add(this.textBox13);
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.label2);
-            this.panel2.Location = new System.Drawing.Point(14, 100);
+            this.panel2.Location = new System.Drawing.Point(16, 113);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(906, 191);
+            this.panel2.Size = new System.Drawing.Size(929, 191);
             this.panel2.TabIndex = 2;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Georgia", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.ForeColor = System.Drawing.Color.Black;
+            this.label6.Location = new System.Drawing.Point(278, 105);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(61, 20);
+            this.label6.TabIndex = 62;
+            this.label6.Text = "Day/s";
+            // 
+            // numericUpDown1
+            // 
+            this.numericUpDown1.Location = new System.Drawing.Point(210, 104);
+            this.numericUpDown1.Name = "numericUpDown1";
+            this.numericUpDown1.Size = new System.Drawing.Size(62, 22);
+            this.numericUpDown1.TabIndex = 61;
             // 
             // button6
             // 
@@ -196,52 +165,16 @@
             this.button6.Text = "SEARCH EXPIRED ITEMS";
             this.button6.UseVisualStyleBackColor = false;
             // 
-            // dateTimePicker2
-            // 
-            this.dateTimePicker2.Location = new System.Drawing.Point(502, 106);
-            this.dateTimePicker2.Name = "dateTimePicker2";
-            this.dateTimePicker2.Size = new System.Drawing.Size(176, 22);
-            this.dateTimePicker2.TabIndex = 45;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Georgia", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.ForeColor = System.Drawing.Color.Black;
-            this.label7.Location = new System.Drawing.Point(452, 108);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(38, 20);
-            this.label7.TabIndex = 44;
-            this.label7.Text = "To:";
-            // 
-            // dateTimePicker1
-            // 
-            this.dateTimePicker1.Location = new System.Drawing.Point(269, 106);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(176, 22);
-            this.dateTimePicker1.TabIndex = 43;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Georgia", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.ForeColor = System.Drawing.Color.Black;
-            this.label6.Location = new System.Drawing.Point(191, 106);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(63, 20);
-            this.label6.TabIndex = 42;
-            this.label6.Text = "From:";
-            // 
             // label5
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Georgia", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label5.ForeColor = System.Drawing.Color.Black;
-            this.label5.Location = new System.Drawing.Point(50, 106);
+            this.label5.Location = new System.Drawing.Point(69, 103);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(120, 20);
+            this.label5.Size = new System.Drawing.Size(97, 20);
             this.label5.TabIndex = 41;
-            this.label5.Text = "Expiry Date:";
+            this.label5.Text = "Expire in:";
             // 
             // textBox4
             // 
@@ -315,7 +248,7 @@
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Georgia", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label8.ForeColor = System.Drawing.Color.MediumBlue;
-            this.label8.Location = new System.Drawing.Point(12, 313);
+            this.label8.Location = new System.Drawing.Point(12, 324);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(283, 24);
             this.label8.TabIndex = 3;
@@ -332,11 +265,11 @@
             this.Column4,
             this.Column5,
             this.Column6});
-            this.dataGridView1.Location = new System.Drawing.Point(14, 340);
+            this.dataGridView1.Location = new System.Drawing.Point(16, 354);
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.RowHeadersWidth = 51;
             this.dataGridView1.RowTemplate.Height = 24;
-            this.dataGridView1.Size = new System.Drawing.Size(906, 150);
+            this.dataGridView1.Size = new System.Drawing.Size(929, 160);
             this.dataGridView1.TabIndex = 4;
             // 
             // Column1
@@ -390,7 +323,7 @@
             this.label10.AutoSize = true;
             this.label10.Font = new System.Drawing.Font("Georgia", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label10.ForeColor = System.Drawing.Color.MediumBlue;
-            this.label10.Location = new System.Drawing.Point(17, 510);
+            this.label10.Location = new System.Drawing.Point(12, 539);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(265, 21);
             this.label10.TabIndex = 5;
@@ -400,7 +333,7 @@
             // 
             this.textBox2.BackColor = System.Drawing.Color.Khaki;
             this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox2.Location = new System.Drawing.Point(288, 508);
+            this.textBox2.Location = new System.Drawing.Point(283, 537);
             this.textBox2.Name = "textBox2";
             this.textBox2.Size = new System.Drawing.Size(172, 27);
             this.textBox2.TabIndex = 41;
@@ -410,7 +343,7 @@
             this.label11.AutoSize = true;
             this.label11.Font = new System.Drawing.Font("Georgia", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label11.ForeColor = System.Drawing.Color.MediumBlue;
-            this.label11.Location = new System.Drawing.Point(476, 510);
+            this.label11.Location = new System.Drawing.Point(476, 539);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(265, 21);
             this.label11.TabIndex = 42;
@@ -420,7 +353,7 @@
             // 
             this.textBox3.BackColor = System.Drawing.Color.Khaki;
             this.textBox3.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox3.Location = new System.Drawing.Point(747, 508);
+            this.textBox3.Location = new System.Drawing.Point(747, 537);
             this.textBox3.Name = "textBox3";
             this.textBox3.Size = new System.Drawing.Size(172, 27);
             this.textBox3.TabIndex = 43;
@@ -441,9 +374,9 @@
             this.panel3.Controls.Add(this.textBox11);
             this.panel3.Controls.Add(this.label20);
             this.panel3.Controls.Add(this.label21);
-            this.panel3.Location = new System.Drawing.Point(936, 100);
+            this.panel3.Location = new System.Drawing.Point(972, 113);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(400, 390);
+            this.panel3.Size = new System.Drawing.Size(464, 401);
             this.panel3.TabIndex = 44;
             // 
             // textBox7
@@ -473,7 +406,7 @@
             this.button2.BackColor = System.Drawing.Color.YellowGreen;
             this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button2.ForeColor = System.Drawing.Color.Blue;
-            this.button2.Location = new System.Drawing.Point(71, 324);
+            this.button2.Location = new System.Drawing.Point(99, 340);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(282, 45);
             this.button2.TabIndex = 47;
@@ -485,7 +418,7 @@
             this.button8.BackColor = System.Drawing.Color.MediumTurquoise;
             this.button8.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button8.ForeColor = System.Drawing.Color.Blue;
-            this.button8.Location = new System.Drawing.Point(71, 273);
+            this.button8.Location = new System.Drawing.Point(99, 289);
             this.button8.Name = "button8";
             this.button8.Size = new System.Drawing.Size(282, 45);
             this.button8.TabIndex = 46;
@@ -579,7 +512,7 @@
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Georgia", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.ForeColor = System.Drawing.Color.MediumBlue;
-            this.label12.Location = new System.Drawing.Point(932, 510);
+            this.label12.Location = new System.Drawing.Point(961, 539);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(207, 21);
             this.label12.TabIndex = 45;
@@ -589,60 +522,31 @@
             // 
             this.textBox8.BackColor = System.Drawing.Color.Khaki;
             this.textBox8.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.textBox8.Location = new System.Drawing.Point(1145, 508);
+            this.textBox8.Location = new System.Drawing.Point(1181, 537);
             this.textBox8.Name = "textBox8";
             this.textBox8.Size = new System.Drawing.Size(172, 27);
             this.textBox8.TabIndex = 46;
+            this.textBox8.TextChanged += new System.EventHandler(this.textBox8_TextChanged);
             // 
-            // pictureBox4
+            // button1
             // 
-            this.pictureBox4.BackColor = System.Drawing.Color.YellowGreen;
-            this.pictureBox4.Image = global::Inventory_Management_System_with_POS.Properties.Resources.math;
-            this.pictureBox4.Location = new System.Drawing.Point(1130, 24);
-            this.pictureBox4.Name = "pictureBox4";
-            this.pictureBox4.Size = new System.Drawing.Size(27, 26);
-            this.pictureBox4.TabIndex = 14;
-            this.pictureBox4.TabStop = false;
-            // 
-            // pictureBox3
-            // 
-            this.pictureBox3.BackColor = System.Drawing.Color.YellowGreen;
-            this.pictureBox3.Image = global::Inventory_Management_System_with_POS.Properties.Resources.minus__1_;
-            this.pictureBox3.Location = new System.Drawing.Point(1033, 24);
-            this.pictureBox3.Name = "pictureBox3";
-            this.pictureBox3.Size = new System.Drawing.Size(38, 26);
-            this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pictureBox3.TabIndex = 13;
-            this.pictureBox3.TabStop = false;
-            // 
-            // pictureBox2
-            // 
-            this.pictureBox2.BackColor = System.Drawing.Color.YellowGreen;
-            this.pictureBox2.Image = global::Inventory_Management_System_with_POS.Properties.Resources.plus__1_1;
-            this.pictureBox2.Location = new System.Drawing.Point(949, 24);
-            this.pictureBox2.Name = "pictureBox2";
-            this.pictureBox2.Size = new System.Drawing.Size(27, 26);
-            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pictureBox2.TabIndex = 12;
-            this.pictureBox2.TabStop = false;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = global::Inventory_Management_System_with_POS.Properties.Resources.close__5_;
-            this.pictureBox1.Location = new System.Drawing.Point(1299, 13);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(39, 37);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pictureBox1.TabIndex = 7;
-            this.pictureBox1.TabStop = false;
-            this.pictureBox1.Click += new System.EventHandler(this.pictureBox1_Click);
+            this.button1.BackColor = System.Drawing.Color.YellowGreen;
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.ForeColor = System.Drawing.Color.Blue;
+            this.button1.Location = new System.Drawing.Point(417, 134);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(172, 45);
+            this.button1.TabIndex = 63;
+            this.button1.Text = "EXPORT CSV";
+            this.button1.UseVisualStyleBackColor = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // frmExpiredItems
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightPink;
-            this.ClientSize = new System.Drawing.Size(1348, 577);
+            this.ClientSize = new System.Drawing.Size(1466, 586);
             this.ControlBox = false;
             this.Controls.Add(this.textBox8);
             this.Controls.Add(this.label12);
@@ -659,17 +563,16 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "frmExpiredItems";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox4)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox3)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -678,14 +581,7 @@
         #endregion
 
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.PictureBox pictureBox4;
-        private System.Windows.Forms.PictureBox pictureBox3;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Label label9;
@@ -694,11 +590,7 @@
         private System.Windows.Forms.TextBox textBox13;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.DateTimePicker dateTimePicker1;
-        private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.DateTimePicker dateTimePicker2;
         private System.Windows.Forms.Button button6;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.DataGridView dataGridView1;
@@ -728,5 +620,9 @@
         private System.Windows.Forms.TextBox textBox5;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox textBox8;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Button button1;
     }
 }

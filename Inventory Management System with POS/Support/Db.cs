@@ -15,6 +15,11 @@ namespace Inventory_Management_System_with_POS
         {
             var c = new MySqlConnection(MySQL_Database.ConnectionString);
             c.Open();
+
+            // make the connection use the same collation as the tables (fixes "Illegal mix of collations")
+            using (var cmd = new MySqlCommand("SET NAMES utf8mb4 COLLATE utf8mb4_general_ci", c))
+                cmd.ExecuteNonQuery();
+
             return c;
         }
 
@@ -115,7 +120,7 @@ namespace Inventory_Management_System_with_POS
                     case 1451: return "This record is used by other records and cannot be removed.";
                     case 1452: return "A related record was not found (invalid reference).";
                     case 1045: return "Database login failed. Check the user name and password in MySQL_Database.cs.";
-                    case 1049: return "Database 'inventory_system' was not found. Import inventory_system.sql first.";
+                    case 1049: return "Database 'inventory_db' was not found. Import inventory_db.sql first.";
                 }
             }
             return ex.Message;

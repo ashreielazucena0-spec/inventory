@@ -6,8 +6,7 @@ namespace Inventory_Management_System_with_POS
 {
     public class MySQL_Database
     {
-        public const string ConnectionString = "Server=localhost;Database=inventory _system;User id=root;Password=123456789;";
-          
+        public const string ConnectionString = "Server=localhost;Database=inventory_db;User id=root;Password=123456789;";
 
         public MySqlConnection conn = new MySqlConnection();
         public MySqlCommand cmd = new MySqlCommand();

@@ -290,5 +290,20 @@ namespace Inventory_Management_System_with_POS
         private void pictureBox1_Click(object sender, EventArgs e) { Close(); }
         private void pictureBox2_Click(object sender, EventArgs e) { }
         private void pictureBox3_Click(object sender, EventArgs e) { }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void frmDashboard_Load_1(object sender, EventArgs e)
+        {
+
+        }
     }
 }

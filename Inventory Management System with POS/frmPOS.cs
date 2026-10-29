@@ -8,14 +8,16 @@ using System.Windows.Forms;
 namespace Inventory_Management_System_with_POS
 {
     /// <summary>
-    /// Point of Sale: scan or search products, build the cart, apply approved discounts, take payment,
-    /// save the sale (tbl_sale, tbl_sale_item, tbl_stock, tbl_stock_log) and print the receipt.
+    /// Point of Sale: scan or search products, build the cart, adjust quantities right in the cart table,
+    /// apply approved discounts, take payment, save the sale (tbl_sale, tbl_sale_item, tbl_stock, tbl_stock_log)
+    /// and print the receipt (58mm paper).
     ///
-    /// Control map:  textBox13 Invoice no | comboBox1 Payment type | checkBox1 Cancel | textBox4 Barcode | textBox8 Search product |
-    /// textBox3 Item code | textBox5 Product name | textBox1 Quantity | textBox2 Price | textBox7 Line discount | textBox6 Line total |
-    /// textBox9 Sale discount | textBox10 Cash received | textBox11 Change | textBox12 Net total.
-    /// Buttons: button1 Add | button2 Save | button3 Cancel | button4 Delete | button8 Print receipt.
-    /// Discounts accept an amount (50) or a percentage (10%).
+    /// Control map (matches frmPOS.Designer.cs):
+    ///   textBox13 Invoice no | comboBox1 Payment type | textBox4 Barcode | textBox8 Search product |
+    ///   textBox9 Sale discount | textBox10 Cash received | textBox11 Change | textBox12 Net total | label20 VAT amount
+    ///   dgvProducts  = product list (left)      dataGridView1 = cart (right, Qty column is editable)
+    /// Buttons: button1 Add | button3 Cancel | button4 Delete | button8 Print receipt.
+    /// Discount accepts an amount (50) or a percentage (10%).
     /// </summary>
     public partial class frmPOS : Form
     {
@@ -27,7 +29,7 @@ namespace Inventory_Management_System_with_POS
         }
 
         private readonly List<CartLine> _cart = new List<CartLine>();
-        private Prod _current;
+        private Prod _current;              // product picked from the list (single click) waiting for the Add button
         private string _lastSaleId;
         private string _discountType;
         private string _approverId;
@@ -43,9 +45,6 @@ namespace Inventory_Management_System_with_POS
         private void frmPOS_Load(object sender, EventArgs e)
         {
             textBox13.ReadOnly = true;
-            textBox5.ReadOnly = true;
-            textBox2.ReadOnly = true;
-            textBox6.ReadOnly = true;
             textBox11.ReadOnly = true;
             textBox12.ReadOnly = true;
 
@@ -55,35 +54,35 @@ namespace Inventory_Management_System_with_POS
 
             Ui.SetupGrid(dataGridView1);
             foreach (DataGridViewColumn c in dataGridView1.Columns) c.SortMode = DataGridViewColumnSortMode.NotSortable;
+            SetupCartGrid();
             SetupCatalogGrid();
             textBox8.TextChanged += (s, a) => FilterCatalog();
 
             Wire(button1, AddClicked);          // Add
-            Wire(button2, SaveSale);            // Save
             Wire(button3, CancelClicked);       // Cancel
             Wire(button4, DeleteLine);          // Delete
-            Wire(button8, PrintReceipt);        // PRINT RECEIPT
+            Wire(button8, PayClicked);          // PRINT RECEIPT = pay + print (reprints the last receipt when the cart is empty)
 
             // the toolbar icons sit on top of the buttons, so make clicking an icon work too
             pictureBox2.Click += AddClicked;
-            pictureBox3.Click += SaveSale;
             pictureBox4.Click += CancelClicked;
             pictureBox5.Click += DeleteLine;
-            foreach (PictureBox pb in new[] { pictureBox2, pictureBox3, pictureBox4, pictureBox5 }) pb.Cursor = Cursors.Hand;
+            foreach (PictureBox pb in new[] { pictureBox2, pictureBox4, pictureBox5 }) pb.Cursor = Cursors.Hand;
 
             textBox4.KeyDown += (s, a) => { if (a.KeyCode == Keys.Enter) { a.SuppressKeyPress = true; Scan(); } };
-            textBox3.KeyDown += (s, a) => { if (a.KeyCode == Keys.Enter) { a.SuppressKeyPress = true; LookupById(); } };
             textBox8.KeyDown += (s, a) => { if (a.KeyCode == Keys.Enter) { a.SuppressKeyPress = true; SearchProduct(); } };
-            textBox1.KeyDown += (s, a) => { if (a.KeyCode == Keys.Enter) { a.SuppressKeyPress = true; AddCurrent(); } };
+            textBox10.KeyDown += (s, a) => { if (a.KeyCode == Keys.Enter) { a.SuppressKeyPress = true; ProcessPayment(); } };   // pay
 
-            textBox1.TextChanged += (s, a) => RecalcLine();
-            // textBox7 (line discount) is wired to textBox7_TextChanged by the designer
             textBox9.TextChanged += (s, a) => RecalcTotals();
             textBox9.Leave += (s, a) => CheckSaleDiscount();
             textBox10.TextChanged += (s, a) => UpdateChange();
             comboBox1.SelectedIndexChanged += (s, a) => PaymentChanged();
-            checkBox1.CheckedChanged += (s, a) => { if (!_resetting && checkBox1.Checked) CancelTransaction(); };
 
+            KeyPreview = true;                  // F-keys are handled in ProcessCmdKey (works from any control)
+            FixLayout();
+            ShowShortcutBar();
+
+            timer1_Tick(null, EventArgs.Empty);
             NewSale();
         }
 
@@ -106,9 +105,10 @@ namespace Inventory_Management_System_with_POS
             textBox10.Text = "";
             textBox11.Text = "0.00";
             textBox12.Text = "0.00";
+            label20.Text = "0.00";
             comboBox1.SelectedItem = "Cash";
             textBox10.ReadOnly = false;
-            checkBox1.Checked = false;
+
             try { textBox13.Text = Db.NextId("tbl_sale", "sale_id", "SALE-", 6); }
             catch { textBox13.Text = "(new)"; }
             _resetting = false;
@@ -119,13 +119,7 @@ namespace Inventory_Management_System_with_POS
         private void ClearEntry()
         {
             _current = null;
-            textBox3.Clear();
             textBox4.Clear();
-            textBox5.Clear();
-            textBox2.Clear();
-            textBox1.Text = "1";
-            textBox7.Text = "0";
-            textBox6.Clear();
         }
 
         private void CancelClicked(object sender, EventArgs e)
@@ -136,6 +130,7 @@ namespace Inventory_Management_System_with_POS
         /// <summary>Cancel: clears the current, unsaved transaction after confirmation.</summary>
         private void CancelTransaction()
         {
+            dataGridView1.EndEdit();
             if (_cart.Count == 0)
             {
                 NewSale();
@@ -143,12 +138,6 @@ namespace Inventory_Management_System_with_POS
             }
             if (Ui.Confirm("Cancel this transaction and clear the cart?", "Cancel Transaction"))
                 NewSale();
-            else
-            {
-                _resetting = true;
-                checkBox1.Checked = false;
-                _resetting = false;
-            }
         }
 
         // ------------------------------------------------------------------ finding products
@@ -172,21 +161,20 @@ namespace Inventory_Management_System_with_POS
             return new Prod { Id = id, Name = r["product_name"].ToString(), Price = Db.ToDec(r["selling_price"]), Stock = Db.ToInt(r["qty"]) };
         }
 
-        private void ShowCurrent()
-        {
-            textBox3.Text = _current.Id;
-            textBox5.Text = _current.Name;
-            textBox2.Text = _current.Price.ToString("N2");
-            RecalcLine();
-        }
-
         private string FindIdExact(string key)
         {
             object o = Db.Scalar("SELECT product_id FROM tbl_product WHERE product_id = @k OR barcode = @k LIMIT 1", Db.P("@k", key));
             return o == null ? null : o.ToString();
         }
 
-        /// <summary>Barcode box: Enter looks the product up and adds it to the cart straight away (scanner friendly).</summary>
+        /// <summary>Current stock of a product straight from the database (used when the Qty is edited in the cart).</summary>
+        private int StockOf(string productId)
+        {
+            object o = Db.Scalar("SELECT IFNULL(quantity,0) FROM tbl_stock WHERE product_id = @id", Db.P("@id", productId));
+            return o == null || o == DBNull.Value ? 0 : Db.ToInt(o);
+        }
+
+        /// <summary>Barcode box: Enter looks the product up and adds 1 to the cart straight away (scanner friendly).</summary>
         private void Scan()
         {
             string key = textBox4.Text.Trim();
@@ -197,27 +185,7 @@ namespace Inventory_Management_System_with_POS
                 if (id == null) { Ui.Warn("No product found with barcode / code '" + key + "'."); textBox4.SelectAll(); return; }
                 Prod p = LoadProd(id);
                 if (p == null) { textBox4.SelectAll(); return; }
-                _current = p;
-                ShowCurrent();
-                AddCurrent();
-            }
-            catch (Exception ex) { Ui.Error(ex); }
-        }
-
-        private void LookupById()
-        {
-            string key = textBox3.Text.Trim();
-            if (key.Length == 0) return;
-            try
-            {
-                string id = FindIdExact(key);
-                if (id == null) { Ui.Warn("No product found with code '" + key + "'."); return; }
-                Prod p = LoadProd(id);
-                if (p == null) return;
-                _current = p;
-                ShowCurrent();
-                textBox1.Focus();
-                textBox1.SelectAll();
+                AddProduct(p, 1);
             }
             catch (Exception ex) { Ui.Error(ex); }
         }
@@ -232,11 +200,8 @@ namespace Inventory_Management_System_with_POS
                 if (id == null) return;
                 Prod p = LoadProd(id);
                 if (p == null) return;
-                _current = p;
-                ShowCurrent();
                 textBox8.Clear();
-                textBox1.Focus();
-                textBox1.SelectAll();
+                AddProduct(p, 1);
             }
             catch (Exception ex) { Ui.Error(ex); }
         }
@@ -259,7 +224,7 @@ namespace Inventory_Management_System_with_POS
             dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dgvProducts.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
-            // click = load the product into the entry boxes, double-click / Enter = add it to the cart
+            // click = pick the product (then press Add), double-click / Enter = add 1 to the cart
             dgvProducts.CellClick += (s, a) => { if (a.RowIndex >= 0) PickFromCatalog(a.RowIndex, false); };
             dgvProducts.CellDoubleClick += (s, a) => { if (a.RowIndex >= 0) PickFromCatalog(a.RowIndex, true); };
             dgvProducts.KeyDown += (s, a) =>
@@ -330,27 +295,134 @@ namespace Inventory_Management_System_with_POS
 
                 Prod p = LoadProd(id);            // warns if inactive / out of stock
                 if (p == null) return;
-                _current = p;
-                ShowCurrent();
-                if (addToCart) AddCurrent();
+                if (addToCart) AddProduct(p, 1);
+                else _current = p;
             }
             catch (Exception ex) { Ui.Error(ex); }
         }
 
-        // ------------------------------------------------------------------ line entry
-        private void RecalcLine()
+        // ------------------------------------------------------------------ cart (right grid)
+        /// <summary>Only the Qty column (Column1) can be edited; everything else in the cart is read-only.</summary>
+        private void SetupCartGrid()
         {
-            if (_current == null) { textBox6.Clear(); return; }
-            int qty;
-            if (!Ui.TryInt(textBox1.Text, out qty) || qty <= 0) { textBox6.Clear(); return; }
-            decimal basis = qty * _current.Price, disc;
-            if (!Ui.TryAmountOrPercent(textBox7.Text, basis, out disc) || disc > basis) { textBox6.Clear(); return; }
-            textBox6.Text = (basis - disc).ToString("N2");
+            dataGridView1.AllowUserToAddRows = false;
+            dataGridView1.AllowUserToDeleteRows = false;
+            dataGridView1.MultiSelect = false;
+            dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dataGridView1.EditMode = DataGridViewEditMode.EditOnKeystrokeOrF2;
+
+            dataGridView1.ReadOnly = false;                       // SetupGrid may have locked the whole grid
+            foreach (DataGridViewColumn c in dataGridView1.Columns) c.ReadOnly = true;
+            Column1.ReadOnly = false;                             // Qty.
+            Column1.DefaultCellStyle.BackColor = Color.LightYellow;   // hint that this column can be edited
+            Column1.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            dataGridView1.CellClick += (s, a) =>
+            {
+                // one click on a Qty cell starts editing
+                if (a.RowIndex >= 0 && a.ColumnIndex == Column1.Index)
+                {
+                    dataGridView1.CurrentCell = dataGridView1.Rows[a.RowIndex].Cells[a.ColumnIndex];
+                    dataGridView1.BeginEdit(true);
+                }
+            };
+            dataGridView1.EditingControlShowing += CartEditingControlShowing;
+            dataGridView1.CellEndEdit += CartCellEndEdit;
         }
 
-        private void textBox7_TextChanged(object sender, EventArgs e)
+        private void CartEditingControlShowing(object sender, DataGridViewEditingControlShowingEventArgs e)
         {
-            RecalcLine();
+            TextBox tb = e.Control as TextBox;
+            if (tb == null) return;
+            tb.KeyPress -= QtyKeyPress;
+            if (dataGridView1.CurrentCell != null && dataGridView1.CurrentCell.ColumnIndex == Column1.Index)
+                tb.KeyPress += QtyKeyPress;                       // digits only in the Qty cell
+        }
+
+        private void QtyKeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (!char.IsControl(e.KeyChar) && !char.IsDigit(e.KeyChar)) e.Handled = true;
+        }
+
+        /// <summary>The user finished typing a new quantity: validate it, check stock, update the cart and totals.</summary>
+        private void CartCellEndEdit(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != Column1.Index || e.RowIndex >= _cart.Count) return;
+
+            CartLine line = _cart[e.RowIndex];
+            DataGridViewCell cell = dataGridView1.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+            int qty;
+            if (!Ui.TryInt(Convert.ToString(cell.Value), out qty) || qty <= 0)
+            {
+                Ui.Warn("Enter a quantity of 1 or more. To remove the item, select it and click Delete.");
+                cell.Value = line.Qty;
+                return;
+            }
+            if (qty == line.Qty) { cell.Value = line.Qty; return; }
+
+            try
+            {
+                int stock = StockOf(line.ProductId);
+                int others = _cart.Where(l => !ReferenceEquals(l, line) && l.ProductId == line.ProductId).Sum(l => l.Qty);
+                if (qty + others > stock)
+                {
+                    Ui.Warn("Only " + stock + " of '" + line.ProductName + "' in stock" + (others > 0 ? " (" + others + " on another cart line)." : "."));
+                    cell.Value = line.Qty;
+                    return;
+                }
+
+                // keep the discount per unit, so a 10% line discount stays 10% after the quantity changes
+                if (line.LineDiscount > 0 && line.Qty > 0)
+                    line.LineDiscount = Math.Round(line.LineDiscount / line.Qty * qty, 2);
+                line.Qty = qty;
+                    
+                UpdateCartRow(e.RowIndex);
+                RecalcTotals();
+            }
+            catch (Exception ex)
+            {
+                Ui.Error(ex);
+                cell.Value = line.Qty;
+            }
+        }
+
+        private void UpdateCartRow(int index)
+        {
+            CartLine l = _cart[index];
+            DataGridViewRow r = dataGridView1.Rows[index];
+            r.Cells[0].Value = l.Qty;
+            r.Cells[4].Value = l.LineDiscount.ToString("N2");
+            r.Cells[5].Value = l.LineTotal.ToString("N2");
+        }
+
+        /// <summary>Puts a product into the cart (merges with an existing undiscounted line of the same product).</summary>
+        private void AddProduct(Prod p, int qty)
+        {
+            dataGridView1.EndEdit();
+
+            int inCart = _cart.Where(l => l.ProductId == p.Id).Sum(l => l.Qty);
+            if (qty + inCart > p.Stock)
+            {
+                Ui.Warn("Only " + p.Stock + " of '" + p.Name + "' in stock" + (inCart > 0 ? " (" + inCart + " already in the cart)." : "."));
+                textBox4.Focus();
+                return;
+            }
+
+            CartLine line = _cart.FirstOrDefault(l => l.ProductId == p.Id && l.LineDiscount == 0);
+            if (line != null) line.Qty += qty;
+            else
+            {
+                line = new CartLine { ProductId = p.Id, ProductName = p.Name, Qty = qty, UnitPrice = p.Price, LineDiscount = 0 };
+                _cart.Add(line);
+            }
+
+            RefreshGrid();
+            int idx = _cart.IndexOf(line);
+            if (idx >= 0 && idx < dataGridView1.Rows.Count) dataGridView1.Rows[idx].Selected = true;
+            RecalcTotals();
+            ClearEntry();
+            textBox4.Focus();
         }
 
         private void AddClicked(object sender, EventArgs e)
@@ -358,45 +430,23 @@ namespace Inventory_Management_System_with_POS
             AddCurrent();
         }
 
-        /// <summary>Add: puts the loaded product (quantity, line discount) into the cart.</summary>
+        /// <summary>Add: adds the barcode typed in the box, or the product picked in the list, to the cart (qty 1 - change it in the cart).</summary>
         private void AddCurrent()
         {
-            if (_current == null) { Ui.Warn("Scan a barcode or search for a product first."); textBox4.Focus(); return; }
-
-            int qty;
-            if (!Ui.TryInt(textBox1.Text, out qty) || qty <= 0) { Ui.Warn("Enter a quantity greater than zero."); textBox1.Focus(); return; }
-
-            decimal basis = qty * _current.Price, lineDisc;
-            if (!Ui.TryAmountOrPercent(textBox7.Text, basis, out lineDisc) || lineDisc > basis)
+            if (textBox4.Text.Trim().Length > 0) { Scan(); return; }
+            if (_current == null)
             {
-                Ui.Warn("Enter a valid discount: an amount up to " + basis.ToString("N2") + " or a percentage like 10%.");
-                textBox7.Focus();
+                Ui.Warn("Scan a barcode, or click a product in the list first.");
+                textBox4.Focus();
                 return;
             }
-
-            int inCart = _cart.Where(l => l.ProductId == _current.Id).Sum(l => l.Qty);
-            if (qty + inCart > _current.Stock)
-            {
-                Ui.Warn("Only " + _current.Stock + " of '" + _current.Name + "' in stock" + (inCart > 0 ? " (" + inCart + " already in the cart)." : "."));
-                textBox1.Focus();
-                return;
-            }
-
-            if (lineDisc > 0 && !EnsureApproval()) return;
-
-            CartLine same = lineDisc == 0 ? _cart.FirstOrDefault(l => l.ProductId == _current.Id && l.LineDiscount == 0) : null;
-            if (same != null) same.Qty += qty;
-            else _cart.Add(new CartLine { ProductId = _current.Id, ProductName = _current.Name, Qty = qty, UnitPrice = _current.Price, LineDiscount = lineDisc });
-
-            RefreshGrid();
-            RecalcTotals();
-            ClearEntry();
-            textBox4.Focus();
+            AddProduct(_current, 1);
         }
 
         /// <summary>Delete: removes the selected cart line.</summary>
         private void DeleteLine(object sender, EventArgs e)
         {
+            dataGridView1.EndEdit();
             if (dataGridView1.SelectedRows.Count == 0) { Ui.Warn("Select the cart line to delete.", "No Selection"); return; }
             int idx = dataGridView1.SelectedRows[0].Index;
             if (idx < 0 || idx >= _cart.Count) return;
@@ -458,6 +508,7 @@ namespace Inventory_Management_System_with_POS
             decimal sub, disc, tax, net;
             Totals(out sub, out disc, out tax, out net);
             if (!AnyDiscount()) { _approverId = null; _discountType = null; }
+            label20.Text = tax.ToString("N2");
             textBox12.Text = net.ToString("N2");
             if (comboBox1.Text != "Cash") textBox10.Text = net.ToString("N2");
             UpdateChange();
@@ -481,9 +532,11 @@ namespace Inventory_Management_System_with_POS
         }
 
         // ------------------------------------------------------------------ save / print
-        /// <summary>Save: completes the sale in one database transaction and offers to print the receipt.</summary>
-        private void SaveSale(object sender, EventArgs e)
+        /// <summary>Pay: press Enter in "Cash received". Saves the sale in one database transaction and prints the receipt automatically.</summary>
+        private void ProcessPayment()
         {
+            dataGridView1.EndEdit();                  // commit a quantity that is still being typed
+
             if (_cart.Count == 0) { Ui.Warn("The cart is empty."); textBox4.Focus(); return; }
             if (!Session.IsLoggedIn) { Ui.Error("No cashier is logged in."); return; }
 
@@ -512,8 +565,12 @@ namespace Inventory_Management_System_with_POS
                 string saleId = SalesService.CompleteSale(_cart, disc, _discountType, _approverId, method, paid, Session.UserId, out change);
                 _lastSaleId = saleId;
 
-                bool print = Ui.Confirm("Sale " + saleId + " saved.\nTotal: " + Ui.Money(net) + "\nChange: " + Ui.Money(change) + "\n\nPrint the receipt?", "Sale Complete");
-                if (print) PrintReceipt(null, EventArgs.Empty);
+                // payment goes through, then the receipt prints automatically (no save button, no prompt)
+                PrintReceipt(null, EventArgs.Empty);
+
+                // show the change only when there is some to give back
+                if (change > 0)
+                    MessageBox.Show("Change: " + Ui.Money(change), "Payment Complete", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 NewSale();
             }
             catch (InvalidOperationException ex)
@@ -526,17 +583,26 @@ namespace Inventory_Management_System_with_POS
             }
         }
 
-        /// <summary>PRINT RECEIPT: prints the last saved sale.</summary>
+        /// <summary>PRINT RECEIPT button: with items in the cart it takes the payment, saves the sale and prints;
+        /// with an empty cart it reprints the last receipt.</summary>
+        private void PayClicked(object sender, EventArgs e)
+        {
+            dataGridView1.EndEdit();
+            if (_cart.Count > 0) ProcessPayment();
+            else PrintReceipt(sender, e);
+        }
+
+        /// <summary>PRINT RECEIPT: prints the last saved sale on 58mm thermal paper.</summary>
         private void PrintReceipt(object sender, EventArgs e)
         {
             if (_lastSaleId == null)
             {
-                Ui.Warn("Save a sale first - the receipt prints from the saved sale.");
+                Ui.Warn("Nothing to print yet - add items to the cart, then click PRINT RECEIPT to pay and print.");
                 return;
             }
             try
             {
-                Printer.PrintText("Receipt " + _lastSaleId, SalesService.ReceiptLines(_lastSaleId), 9f, false);
+                Printer58.Print("Receipt " + _lastSaleId, SalesService.ReceiptLines(_lastSaleId));
             }
             catch (Exception ex)
             {
@@ -544,11 +610,133 @@ namespace Inventory_Management_System_with_POS
             }
         }
 
+        // ------------------------------------------------------------------ keyboard shortcuts (F1 - F12)
+        //   F1  Barcode box          F5  Delete cart line      F9   Cancel transaction
+        //   F2  Search product       F6  Discount box          F10  Pay + print receipt
+        //   F3  Add                  F7  Payment type          F11  Reprint last receipt
+        //   F4  Edit Qty (cart)      F8  Cash received         F12  Close POS
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            if (HandleShortcut(keyData)) return true;
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private bool HandleShortcut(Keys key)
+        {
+            switch (key)
+            {
+                case Keys.F1:
+                    textBox4.Focus(); textBox4.SelectAll();
+                    return true;
+                case Keys.F2:
+                    textBox8.Focus(); textBox8.SelectAll();
+                    return true;
+                case Keys.F3:
+                    AddCurrent();
+                    return true;
+                case Keys.F4:
+                    EditSelectedQty();
+                    return true;
+                case Keys.F5:
+                    DeleteLine(null, EventArgs.Empty);
+                    return true;
+                case Keys.F6:
+                    textBox9.Focus(); textBox9.SelectAll();
+                    return true;
+                case Keys.F7:
+                    comboBox1.Focus(); comboBox1.DroppedDown = true;
+                    return true;
+                case Keys.F8:
+                    if (textBox10.ReadOnly) Ui.Warn("Cash received is only used for Cash payments.");
+                    else { textBox10.Focus(); textBox10.SelectAll(); }
+                    return true;
+                case Keys.F9:
+                    CancelTransaction();
+                    return true;
+                case Keys.F10:
+                    ProcessPayment();
+                    return true;
+                case Keys.F11:
+                    PrintReceipt(null, EventArgs.Empty);
+                    return true;
+                case Keys.F12:
+                    Close();
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>F4: starts editing the Qty of the selected cart line (the last line when none is selected).</summary>
+        private void EditSelectedQty()
+        {
+            if (_cart.Count == 0 || dataGridView1.Rows.Count == 0) { Ui.Warn("The cart is empty."); return; }
+            int idx = dataGridView1.SelectedRows.Count > 0 ? dataGridView1.SelectedRows[0].Index : dataGridView1.Rows.Count - 1;
+            dataGridView1.Rows[idx].Selected = true;
+            dataGridView1.CurrentCell = dataGridView1.Rows[idx].Cells[Column1.Index];
+            dataGridView1.Focus();
+            dataGridView1.BeginEdit(true);
+        }
+
+        /// <summary>
+        /// The form opens maximized, so anything that is not anchored stays where the designer put it
+        /// while the grids stretch over it. This glues the bottom row to the bottom of the window.
+        /// </summary>
+        private void FixLayout()
+        {
+            // payment row: stays at the bottom-left, keeping its spacing
+            foreach (Control c in new Control[] { label16, textBox9, label11, label20, label17, textBox10, label18, textBox11, button8 })
+                c.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+
+            // net total: stays at the bottom-right
+            foreach (Control c in new Control[] { label19, textBox12 })
+                c.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+
+            // VAT caption next to the Discount box, the amount right under it (positions relative to the Discount box)
+            label11.Left = textBox9.Right + 3;
+            label11.Top = textBox9.Top - 6;
+            label20.Left = label11.Left + 2;
+            label20.Top = label11.Bottom + 2;
+
+            // both grids end at the same height
+            dataGridView1.Height = dgvProducts.Bottom - dataGridView1.Top;
+        }
+
+        /// <summary>Small hint line under the product list + tooltips on the toolbar buttons.</summary>
+        private void ShowShortcutBar()
+        {
+            Label bar = new Label
+            {
+                AutoSize = false,
+                Left = 12,
+                Top = dgvProducts.Bottom + 6,          // right under the grids, never over them
+                Width = ClientSize.Width - 24,
+                Height = 40,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom,
+                Font = new Font("Microsoft Sans Serif", 9F, FontStyle.Bold),
+                ForeColor = Color.DarkSlateGray,
+                Text = "F1 Barcode   F2 Search   F3 Add   F4 Edit Qty   F5 Delete   F6 Discount\r\n" +
+                       "F7 Payment Type   F8 Cash Received   F9 Cancel   F10 Pay && Print   F11 Reprint   F12 Close"
+            };
+            Controls.Add(bar);
+            bar.BringToFront();
+
+            ToolTip tip = new ToolTip();
+            tip.SetToolTip(button1, "Add (F3)");
+            tip.SetToolTip(button3, "Cancel transaction (F9)");
+            tip.SetToolTip(button4, "Delete selected line (F5)");
+            tip.SetToolTip(button8, "Pay and print receipt (F10) / reprint (F11)");
+            tip.SetToolTip(textBox4, "Barcode (F1)");
+            tip.SetToolTip(textBox8, "Search product (F2)");
+            tip.SetToolTip(textBox9, "Discount (F6)");
+            tip.SetToolTip(textBox10, "Cash received (F8)");
+            tip.SetToolTip(comboBox1, "Payment type (F7)");
+        }
+
         // ------------------------------------------------------------------ designer handlers
         private void timer1_Tick(object sender, EventArgs e)
         {
-            label5.Text = DateTime.Now.ToLongDateString();
-            label6.Text = DateTime.Now.ToLongTimeString();
+            label5.Text = DateTime.Now.ToLongTimeString();   // big label  = time
+            label6.Text = DateTime.Now.ToLongDateString();   // small label = date
         }
 
         private void pictureBox1_Click(object sender, EventArgs e)
@@ -560,5 +748,20 @@ namespace Inventory_Management_System_with_POS
 
         private void panel1_Paint(object sender, PaintEventArgs e) { }
         private void label6_Click(object sender, EventArgs e) { }
+
+        // kept because the designer references it; the real handler is wired in frmPOS_Load
+        private void button8_Click(object sender, EventArgs e)
+        {
+        }
+
+        private void label11_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label20_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

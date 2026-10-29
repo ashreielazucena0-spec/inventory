@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Inventory_Management_System_with_POS
@@ -65,7 +66,7 @@ namespace Inventory_Management_System_with_POS
 
             switch (page)
             {
-                case "home": feature = Feature.Home; make = () => new frmHome(); break;
+               
                 case "dashboard": feature = Feature.Dashboard; make = () => new frmDashboard(); break;
                 case "pos": feature = Feature.POS; make = () => new frmPOS(); break;
                 case "products": feature = Feature.Products; make = () => new frmManageProduct(); break;
@@ -107,8 +108,23 @@ namespace Inventory_Management_System_with_POS
         }
 
         // ---- menu / toolbar ----
-        private void toolStripButton1_Click(object sender, EventArgs e) { NavigateTo("home"); }
-        private void toolStripButton2_Click(object sender, EventArgs e) { NavigateTo("dashboard"); }
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            foreach (Form child in _openChildForm.ToList())
+            {
+            child.Dispose();
+            }
+            panel2.Controls.Clear();
+            panel2.BringToFront();
+
+
+
+
+        }
+        private void toolStripButton2_Click(object sender, EventArgs e) { 
+            NavigateTo("dashboard"); 
+        }
+
         private void toolStripButton3_Click(object sender, EventArgs e) { NavigateTo("pos"); }
         private void manageToolStripMenuItem_Click(object sender, EventArgs e) { NavigateTo("products"); }
         private void manageStocksToolStripMenuItem_Click(object sender, EventArgs e) { NavigateTo("stocks"); }
@@ -139,5 +155,10 @@ namespace Inventory_Management_System_with_POS
         private void toolStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e) { }
         private void label6_Click(object sender, EventArgs e) { }
         private void panel3_Paint(object sender, PaintEventArgs e) { }
+
+        private void toolStripDropDownButton3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

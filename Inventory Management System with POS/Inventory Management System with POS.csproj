@@ -68,6 +68,7 @@
     </Reference>
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Pipelines, Version=5.0.0.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.IO.Pipelines.5.0.2\lib\net461\System.IO.Pipelines.dll</HintPath>
     </Reference>
@@ -101,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Account_Variables.cs" />
+    <Compile Include="ExcelExport.cs" />
     <Compile Include="frmAccounts.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -130,12 +132,6 @@
     </Compile>
     <Compile Include="frmExpiredItems.Designer.cs">
       <DependentUpon>frmExpiredItems.cs</DependentUpon>
-    </Compile>
-    <Compile Include="frmHome.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmHome.Designer.cs">
-      <DependentUpon>frmHome.cs</DependentUpon>
     </Compile>
     <Compile Include="frmLoginform.cs">
       <SubType>Form</SubType>
@@ -174,6 +170,7 @@
       <DependentUpon>frmPOS.cs</DependentUpon>
     </Compile>
     <Compile Include="MySQL_Database.cs" />
+    <Compile Include="Printer58.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Support\Db.cs" />
     <Compile Include="Support\InventoryService.cs" />
@@ -198,9 +195,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmExpiredItems.resx">
       <DependentUpon>frmExpiredItems.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmHome.resx">
-      <DependentUpon>frmHome.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmLoginform.resx">
       <DependentUpon>frmLoginform.cs</DependentUpon>
